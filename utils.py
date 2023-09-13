@@ -96,7 +96,7 @@ def construct_global_graph(dataset, args=None):
         for POI in traj:
             x.append(idx)
             y.append(POI)
-    TV_A = csr_matrix((np.ones(len(x), dtype=np.float), (x, y)))
+    TV_A = csr_matrix((np.ones(len(x), dtype=float), (x, y))) # csr_matrx((data, (row,col)))
     # N_trajs, N_trajs
     TT_A = TV_A.dot(TV_A.T)
     # TV_A = TV_A.tocoo()
@@ -114,7 +114,7 @@ def construct_global_graph_with_spatioinfo(dataset, args):
     train_trajs, val_trajs, test_trajs = dataset.train_trajs, dataset.val_trajs, dataset.test_trajs
     whole_trajs = train_trajs + val_trajs + test_trajs
     # build vocab dict which is used to convert POIs to vocabs
-    vocabs = copy.deepcopy(dataset.vocabs)
+    vocabs = copy.deepcopy(dataset.vocabs) # point -> id
     dataset.build_vocabs(dataset.val_trajs, vocabs)
     dataset.build_vocabs(dataset.test_trajs, vocabs)
     reversed_vocabs = dict([(i, v) for v, i in vocabs.items()])
@@ -136,8 +136,8 @@ def construct_global_graph_with_spatioinfo(dataset, args):
             POIlatlon.append([0, 0])
         else:
             POIlatlon.append(lonlat2meters(dataset.vidx_to_latlon[i][1], dataset.vidx_to_latlon[i][0]))
-    POIneighbor_dist = pairwise_distances(POIlatlon, n_jobs=4)
-    POIneighbor_graph = np.where(POIneighbor_dist<args.spatio, 1, 0)
+    POIneighbor_dist = pairwise_distances(POIlatlon, n_jobs=4) # nl*nl, nl=num of different locations
+    POIneighbor_graph = np.where(POIneighbor_dist<args.spatio, 1, 0) # condition matched --> 1, otherwise 0
     # Mask the diagnoal; Themself should not their own neighbor, which will fuse the two type of information, i.e., spatial info and repeative info.
     POIneighbor_graph = POIneighbor_graph - np.diag(np.diag(POIneighbor_graph))
     POI_A = csr_matrix(POIneighbor_graph)
@@ -154,7 +154,7 @@ def construct_global_graph_with_spatioinfo(dataset, args):
     TTNV_rows = np.concatenate([TNV_A.row, TT_A.row])
     TTNV_cols = np.concatenate([TNV_A.col, TT_A.col])
     TTNV_data = np.concatenate([TNV_A.data, TT_A.data])
-    edge_type = [0]*len(TNV_A.row) + [1]*len(TT_A.row)
+    edge_type = [0]*len(TNV_A.row) + [1]*len(TT_A.row) # indicate whether from TNV_A or TT_A
     return (np.stack([TTNV_rows, TTNV_cols], axis=0), TTNV_data, edge_type)
 
 

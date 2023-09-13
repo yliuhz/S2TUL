@@ -104,6 +104,7 @@ if __name__ == "__main__":
     datapath = Path(args.datadir)
     # savepath = Path("./results/") / "Repeat_{}_{}.txt".format(datapath.parts[2], datapath.parts[4])
     savepath = Path("./robustness/") / "Repeat_{}_{}_m_{}.txt".format(datapath.parts[2], datapath.parts[4], args.m)
+    
     with open(savepath, "w") as fsave:
         # print("Acc@1: {:.5f}, Acc@5: {:.5f}, Acc@10: {:.5f}, Macro@P: {:.5f}, Macro@R: {:.5f}, Macro@F: {:.5f}, GSACC@1: {:.5f}".format(
         #         acc_list[0].item(), acc_list[1].item(), acc_list[2].item(), acc_list[3], acc_list[4], acc_list[5], gs_acc1), file=fsave)
